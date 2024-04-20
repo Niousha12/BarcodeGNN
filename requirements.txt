@@ -6,3 +6,4 @@ networkx
 matplotlib
 h5py
 vtk
+plotly

@@ -5,7 +5,7 @@ import os.path as osp
 import shutil
 from glob import glob
 import torch
-from torch_scatter import scatter
+# from torch_scatter import scatter
 from torch_geometric.data import InMemoryDataset, Data, extract_zip
 from tqdm import tqdm
 import torch_geometric as tg
