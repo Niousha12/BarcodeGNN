@@ -1,5 +1,5 @@
 import torch
-from torch_geometric.nn import MessagePassing
+from torch_geometric.nn import MessagePassing, GATv2Conv
 from torch_geometric.utils import add_self_loops, degree
 import torch.nn.functional as F
 import torch
@@ -80,6 +80,44 @@ class GCN2(torch.nn.Module):
 
 
 # Assume data object has .x for node features, .edge_index for edge indices, and .edge_attr for edge weights.
+
+class GatGCN(torch.nn.Module):
+    def __init__(self, num_features, embedding_size, num_classes):
+        # Init parent
+        super(GatGCN, self).__init__()
+        torch.manual_seed(42)
+
+        # GCN layers
+        self.initial_conv = GATv2Conv(num_features, embedding_size)
+        self.conv1 = GATv2Conv(embedding_size, embedding_size)
+        self.conv2 = GATv2Conv(embedding_size, embedding_size)
+        self.conv3 = GATv2Conv(embedding_size, embedding_size)
+
+        # Output layer
+        self.out = Linear(embedding_size * 2, num_classes)
+
+    def forward(self, data):
+        x, edge_index, batch_index = data.x, data.edge_index, data.batch
+        # First Conv layer
+        hidden = self.initial_conv(x, edge_index)
+        hidden = F.tanh(hidden)
+
+        # Other Conv layers
+        hidden = self.conv1(hidden, edge_index)
+        hidden = F.tanh(hidden)
+        hidden = self.conv2(hidden, edge_index)
+        hidden = F.tanh(hidden)
+        hidden = self.conv3(hidden, edge_index)
+        hidden = F.tanh(hidden)
+
+        # Global Pooling (stack different aggregations)
+        hidden = torch.cat([gmp(hidden, batch_index),
+                            gap(hidden, batch_index)], dim=1)
+
+        # Apply a final (linear) classifier.
+        out = self.out(hidden)
+
+        return out
 
 
 class ShallowGCN(torch.nn.Module):

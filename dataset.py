@@ -33,3 +33,21 @@ class DNADataset:
         self.graphs = [create_graph_from_sequence(seq, k=self.k_mer, label=self.label2idx[self.labels[i]],
                                                   kmer_embeddings=self.embeddings, stride=stride) for i, seq in
                        tqdm(enumerate(self.barcodes))]
+        # self.graphs = [create_graph_from_sequence(seq, k=self.k_mer, label=self.label2idx[self.labels[i]],
+        #                                           kmer_embeddings=None, stride=stride) for i, seq in
+        #                tqdm(enumerate(self.barcodes))]
+
+        node_count = []
+        edge_count = []
+        for graph in self.graphs:
+            node_count.append(graph.num_nodes)
+            edge_count.append(graph.edge_index.size(1))
+        self.average_node_count = {sum(node_count) / len(node_count)}
+        self.average_edge_count = {sum(edge_count) / len(edge_count)}
+
+if __name__ == "__main__":
+    temp = DNADataset('data/supervised_train.csv', k_mer=5, stride=5, task='genus_name')
+    temp2 = DNADataset('data/supervised_test.csv', k_mer=5, stride=5, task='order_name')
+    print(temp.average_node_count)
+    print(temp.average_edge_count)
+    print(temp.number_of_classes)

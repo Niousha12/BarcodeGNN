@@ -14,7 +14,7 @@ from torch_geometric.datasets import Planetoid
 from torch_geometric.transforms import NormalizeFeatures
 from torch.nn import Linear
 from tqdm import tqdm
-from models import ShallowGCN, DeepGCN
+from models import ShallowGCN, DeepGCN, GatGCN
 
 from dataset import DNADataset
 
@@ -34,6 +34,8 @@ def main(args):
         model = DeepGCN(100, 64, train_dataset.number_of_classes)
     elif args['model'] == 'ShallowGCN':
         model = ShallowGCN(100, 64, train_dataset.number_of_classes)
+    elif args['model'] == 'GatGCN':
+        model = GatGCN(100, 64, train_dataset.number_of_classes)
     else:
         raise ValueError("Model not recognized.")
 
@@ -113,24 +115,29 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', action='store', type=int, default=32)
     parser.add_argument('--lr', action='store', type=float, default=1e-4)
     parser.add_argument('--weight_decay', action='store', type=float, default=1e-05)
-    parser.add_argument('--epochs', type=int, default=80, help='Total number of training epochs')
+    parser.add_argument('--epochs', type=int, default=100, help='Total number of training epochs')
 
     args_parsed = parser.parse_args()
     args_dict = vars(args_parsed)
 
-    for task in ['species_name', 'genus_name', 'order_name']:
-        args_dict['task'] = task
+    args_log = "\n".join("{}\t{}".format(k, v) for k, v in sorted(args_dict.items(), key=lambda t: str(t[0])))
 
-        for overlapping in [True, False]:
-            args_dict['overlapping'] = overlapping
+    print(args_log)
+    main(args_dict)
 
-            for kmer_size in [3, 4, 5]:
-                args_dict['kmer'] = kmer_size
-
-                for network in ['DeepGCN', 'ShallowGCN']:
-                    args_dict['model'] = network
-
-                    args_log = "\n".join("{}\t{}".format(k, v) for k, v in sorted(args_dict.items(), key=lambda t: str(t[0])))
-
-                    print(args_log)
-                    main(args_dict)
+    # for task in ['genus_name']:
+    #     args_dict['task'] = task
+    #
+    #     for overlapping in [False]:
+    #         args_dict['overlapping'] = overlapping
+    #
+    #         for kmer_size in [3, 4, 5]:
+    #             args_dict['kmer'] = kmer_size
+    #
+    #             for network in ['GatGCN']:
+    #                 args_dict['model'] = network
+    #
+    #                 args_log = "\n".join("{}\t{}".format(k, v) for k, v in sorted(args_dict.items(), key=lambda t: str(t[0])))
+    #
+    #                 print(args_log)
+    #                 main(args_dict)

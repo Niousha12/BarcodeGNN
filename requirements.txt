@@ -4,7 +4,5 @@ numpy
 torch_geometric
 networkx
 matplotlib
-torch-scatter
-torch-cluster
 h5py
 vtk
