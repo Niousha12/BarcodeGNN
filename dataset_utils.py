@@ -71,6 +71,4 @@ def create_graph_with_embeddings(sequence, k=3, label=0, kmer_embeddings=None, s
     edge_attr = torch.tensor(edge_weights, dtype=torch.float)
     x = torch.tensor(features, dtype=torch.float)
 
-
-
     return Data(x=x, edge_index=edge_index, edge_attr=edge_attr, label=torch.tensor([label]))

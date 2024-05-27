@@ -133,7 +133,7 @@ class ShallowGCN(torch.nn.Module):
         self.conv3 = GCNConv(embedding_size, embedding_size)
 
         # Output layer
-        self.out = Linear(embedding_size * 2, num_classes)
+        self.classifier = Linear(embedding_size * 2, num_classes)
 
     def forward(self, data):
         x, edge_index, batch_index = data.x, data.edge_index, data.batch
@@ -154,7 +154,7 @@ class ShallowGCN(torch.nn.Module):
                             gap(hidden, batch_index)], dim=1)
 
         # Apply a final (linear) classifier.
-        out = self.out(hidden)
+        out = self.classifier(hidden)
 
         return out
 
@@ -190,8 +190,8 @@ class DeepGCN(torch.nn.Module):
         fusion_dims = int(channels * self.n_blocks + c_growth * ((1 + self.n_blocks - 1) * (self.n_blocks - 1) / 2))
         self.fusion_block = MLP([fusion_dims, 1024], act, None, bias)
         self.prediction = Seq(*[MLP([1 + fusion_dims, 512], act, norm, bias), torch.nn.Dropout(p=dropout),
-                                MLP([512, 256], act, norm, bias), torch.nn.Dropout(p=dropout),
-                                MLP([256, num_classes], None, None, bias)])
+                                MLP([512, 256], act, norm, bias), torch.nn.Dropout(p=dropout)])
+        self.classifier = MLP([256, num_classes], None, None, bias)
         self.model_init()
 
     def model_init(self):
@@ -211,6 +211,7 @@ class DeepGCN(torch.nn.Module):
         feats = torch.cat(feats, 1)
         fusion, _ = torch.max(self.fusion_block(feats), 1, keepdim=True)
         out = self.prediction(torch.cat((feats, fusion), 1))
+        out = self.classifier(out)
 
         out = scatter(out, batch, dim=0, reduce='mean')
 

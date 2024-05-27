@@ -45,6 +45,7 @@ class DNADataset:
         self.average_node_count = {sum(node_count) / len(node_count)}
         self.average_edge_count = {sum(edge_count) / len(edge_count)}
 
+
 if __name__ == "__main__":
     temp = DNADataset('data/supervised_train.csv', k_mer=5, stride=5, task='genus_name')
     temp2 = DNADataset('data/supervised_test.csv', k_mer=5, stride=5, task='order_name')

@@ -109,9 +109,9 @@ if __name__ == '__main__':
     # Argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', action='store', type=str, default='DeepGCN')
-    parser.add_argument('--kmer', action='store', type=int, default=3)
+    parser.add_argument('--kmer', action='store', type=int, default=5)
     parser.add_argument('--overlapping', action='store', type=bool, default=True)
-    parser.add_argument('--task', action='store', type=str, default='species_name')
+    parser.add_argument('--task', action='store', type=str, default='genus_name')
     parser.add_argument('--batch_size', action='store', type=int, default=32)
     parser.add_argument('--lr', action='store', type=float, default=1e-4)
     parser.add_argument('--weight_decay', action='store', type=float, default=1e-05)
